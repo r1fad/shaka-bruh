@@ -10,6 +10,9 @@ import urllib, cStringIO
 from random import randint
 import os
 import psutil
+import json, requests
+from slackclient import SlackClient
+
 os.system("sudo service leapd restart")
 
 f = open("memez.txt","r")
@@ -29,30 +32,54 @@ class SampleListener(Leap.Listener):
     def on_frame(self, controller):
         frame = controller.frame()
 
-        for gesture in frame.gestures():
-            if gesture.type is Leap.Gesture.TYPE_SWIPE:
-                swipe = Leap.SwipeGesture(gesture)
-                if not SampleListener.sent:
-                    print SampleListener.currentUrl
-                    SampleListener.sent = True
+        # for gesture in frame.gestures():
+        #     if gesture.type is Leap.Gesture.TYPE_SWIPE:
+        #         swipe = Leap.SwipeGesture(gesture)
+        #         if not SampleListener.sent:
+        #             SampleListener.sent = True
+        #             url = 'https://hooks.slack.com/services/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'
+        #             d = {}
+        #             d["text"] = 'Here\'s one from Rifad: ' + SampleListener.currentUrl
+        #             #payload = json.loads('{"text":"' + SampleListener.currentUrl +' "}')
+        #             headers = {'Content-type': 'application/json'}
+        #             r = requests.post(url, data=json.dumps(d), headers=headers)
+        #             print 'meme shared to Slack successfully!'
 
         shaka_thumb = False
         shaka_pinky = False
-        not_fingers = False
-
+        #not_fingers = False
+        shaka_index = False
+        shaka_middle = False
+        shaka_ring = False
         for finger in frame.fingers:
             if finger.type == 4:
                 if finger.is_extended == True:
                     shaka_pinky = True
-
             elif finger.type == 0:
                 if finger.is_extended == True:
                     shaka_thumb = True
-            elif finger.is_extended == True:
-                not_fingers = True
+            elif finger.type == 1:
+                if finger.is_extended == True:
+                    shaka_index = True
+            elif finger.type == 2:
+                if finger.is_extended == True:
+                    shaka_middle = True
+            elif finger.type == 3:
+                if finger.is_extended == True:
+                    shaka_ring = True
 
-        if shaka_thumb and shaka_pinky and not not_fingers:
+        if shaka_thumb and shaka_pinky and not shaka_ring and not shaka_middle and not shaka_index:
             SampleListener.frame_count += 1
+        elif shaka_index and shaka_middle and not shaka_ring and not shaka_thumb and not shaka_pinky:
+            if not SampleListener.sent:
+                SampleListener.sent = True
+                url = 'https://hooks.slack.com/services/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'
+                d = {}
+                d["text"] = 'Here\'s one from Rifad: ' + SampleListener.currentUrl
+                #payload = json.loads('{"text":"' + SampleListener.currentUrl +' "}')
+                headers = {'Content-type': 'application/json'}
+                r = requests.post(url, data=json.dumps(d), headers=headers)
+                print 'meme shared to Slack successfully!'
 
         if SampleListener.frame_count == 60:
             print 'get a meme'
@@ -71,7 +98,7 @@ class SampleListener(Leap.Listener):
             hsize = int((float(img.size[1])*float(wpercent)))
             img = img.resize((basewidth,hsize), Image.ANTIALIAS)
             img.show()
-            time.sleep(0.5)
+            #time.sleep(0.5)
             SampleListener.frame_count = 0
 
 
