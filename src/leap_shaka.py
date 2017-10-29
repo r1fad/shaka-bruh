@@ -15,7 +15,7 @@ from slackclient import SlackClient
 
 os.system("sudo service leapd restart")
 
-f = open("memez.txt","r")
+f = open("dankmemes.txt","r")
 memez = f.readlines()
 
 
@@ -81,7 +81,7 @@ class SampleListener(Leap.Listener):
                 r = requests.post(url, data=json.dumps(d), headers=headers)
                 print 'meme shared to Slack successfully!'
 
-        if SampleListener.frame_count == 60:
+        if SampleListener.frame_count == 30:
             print 'get a meme'
             SampleListener.sent = False
 
@@ -98,7 +98,7 @@ class SampleListener(Leap.Listener):
             hsize = int((float(img.size[1])*float(wpercent)))
             img = img.resize((basewidth,hsize), Image.ANTIALIAS)
             img.show()
-            #time.sleep(0.5)
+            time.sleep(0.5)
             SampleListener.frame_count = 0
 
 
